@@ -148,8 +148,8 @@ onUnmounted(() => {
     </section>
 
     <!-- Gallery -->
-    <section class="mx-auto max-w-screen-2xl px-6 pb-20">
-      <div class="columns-1 gap-5 md:columns-2 xl:columns-3">
+    <section class="mx-auto max-w-screen-xl px-6 pb-20">
+      <div class="columns-1 gap-5 md:columns-2 xl:columns-4">
         <div
           v-for="(photo, index) in photos"
           :key="photo.id"
