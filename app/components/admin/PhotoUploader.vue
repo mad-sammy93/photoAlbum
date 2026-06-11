@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import imageCompression from "browser-image-compression";
+import type { PhotoUploadAlbum } from "~/types/database.types";
 
 const props = defineProps<{
-  albums: {
-    id: string;
-    title: string;
-  }[];
+  albums: PhotoUploadAlbum[];
 }>();
 
 const supabase = useSupabaseClient();
@@ -52,7 +50,9 @@ async function uploadPhotos() {
       /*
        * Generate thumbnail
        */
-
+      if (!file) {
+        continue;
+      }
       const thumbnail = await imageCompression(file, {
         maxWidthOrHeight: 600,
 
@@ -146,7 +146,7 @@ async function uploadPhotos() {
       >
         <option value="">Choose Album</option>
 
-        <option v-for="album in albums" :key="album.id" :value="album.id">
+        <option v-for="album in props.albums" :key="album.id" :value="album.id">
           {{ album.title }}
         </option>
       </select>

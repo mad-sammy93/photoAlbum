@@ -1,8 +1,17 @@
-export const usePhotos = async (slug: string) => {
+import type { Album, PhotoWithUrls } from "~/types/database.types";
+
+export const usePhotos = async (
+  slug: string,
+  page = 0,
+  limit = 6,
+): Promise<{
+  album: Album;
+  photos: PhotoWithUrls[];
+}> => {
   const supabase = useSupabaseClient();
 
   /*
-   * Get album first
+   * Get album
    */
 
   const { data: album, error: albumError } = await supabase
@@ -22,11 +31,17 @@ export const usePhotos = async (slug: string) => {
    * Get photos
    */
 
+  const from = page * limit;
+  const to = from + limit - 1;
+
   const { data: photos, error: photosError } = await supabase
     .from("photos")
     .select("*")
     .eq("album_id", album.id)
-    .order("sort_order");
+    .order("sort_order", {
+      ascending: true,
+    })
+    .range(from, to);
 
   if (photosError) {
     throw createError({
@@ -36,7 +51,7 @@ export const usePhotos = async (slug: string) => {
   }
 
   const photosWithUrls = photos.map((photo) => ({
-    ...photo,
+    ...(photo as any),
 
     thumbnail_url: supabase.storage
       .from("thumbnails")
@@ -48,7 +63,7 @@ export const usePhotos = async (slug: string) => {
   }));
 
   return {
-    album,
+    album: album as Album,
 
     photos: photosWithUrls,
   };

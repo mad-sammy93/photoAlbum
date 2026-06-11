@@ -39,63 +39,112 @@ async function login() {
   navigateTo("/admin");
 }
 </script>
-
 <template>
-  <div
-    class="min-h-screen flex items-center justify-center bg-black text-white"
-  >
-    <div class="w-full max-w-md rounded-3xl bg-zinc-900 p-8">
-      <h1 class="mb-8 text-4xl font-serif">Admin Login</h1>
+  <div class="flex min-h-screen items-center justify-center bg-black px-6">
+    <NuxtLink
+      to="/"
+      class="absolute left-6 top-6 inline-flex items-center gap-2 rounded-2xl border border-zinc-800 bg-zinc-950/80 px-5 py-3 text-sm text-zinc-300 backdrop-blur transition hover:border-zinc-700 hover:bg-zinc-900 hover:text-white"
+    >
+      <span>←</span>
 
-      <div class="space-y-4">
-        <input
-          v-model="email"
-          type="email"
-          placeholder="Email"
-          class="w-full rounded-xl bg-zinc-800 p-4"
-        />
-
-        <input
-          v-model="password"
-          type="password"
-          placeholder="Password"
-          class="w-full rounded-xl bg-zinc-800 p-4"
-        />
-
-        <button
-          @click="login"
-          class="w-full rounded-xl bg-amber-500 p-4 text-black"
-        >
-          Login
-        </button>
-        <button
-          @click="resetMode = !resetMode"
-          class="mt-4 text-sm text-amber-500 hover:text-amber-400"
-        >
-          Forgot Password?
-        </button>
-      </div>
-    </div>
-    <div v-if="resetMode" class="mt-8 border-t border-zinc-800 pt-8">
-      <h2 class="text-xl font-medium">Reset Password</h2>
-
-      <input
-        v-model="resetEmail"
-        type="email"
-        placeholder="Email"
-        class="mt-5 w-full rounded-2xl border border-zinc-800 bg-black px-5 py-4 text-white"
-      />
-
-      <button
-        @click="forgotPassword"
-        class="mt-5 w-full rounded-2xl bg-zinc-800 px-5 py-4 text-white hover:bg-zinc-700"
+      Back to Gallery
+    </NuxtLink>
+    <div
+      class="w-full max-w-md rounded-[32px] border border-zinc-800 bg-zinc-950 p-10 shadow-2xl"
+    >
+      <Transition
+        mode="out-in"
+        enter-active-class="transition duration-300"
+        leave-active-class="transition duration-200"
       >
-        Send Reset Email
-      </button>
+        <!-- LOGIN -->
+        <div v-if="!resetMode" key="login">
+          <div class="mb-10">
+            <p class="text-xs uppercase tracking-[0.4em] text-amber-500">
+              Wedding CMS
+            </p>
 
-      <p v-if="resetMessage" class="mt-4 text-sm text-zinc-400">
-        {{ resetMessage }}
-      </p>
+            <h1 class="mt-4 text-4xl font-serif text-white">Welcome Back</h1>
+
+            <p class="mt-3 text-zinc-400">Sign in to manage your memories.</p>
+          </div>
+
+          <div class="space-y-5">
+            <input
+              v-model="email"
+              type="email"
+              placeholder="Email Address"
+              class="w-full rounded-2xl border border-zinc-800 bg-black px-5 py-4 text-white outline-none transition focus:border-amber-500"
+            />
+
+            <input
+              v-model="password"
+              type="password"
+              placeholder="Password"
+              class="w-full rounded-2xl border border-zinc-800 bg-black px-5 py-4 text-white outline-none transition focus:border-amber-500"
+            />
+
+            <button
+              @click="login"
+              class="w-full rounded-2xl bg-amber-500 px-5 py-4 font-medium text-black transition hover:bg-amber-400"
+            >
+              Sign In
+            </button>
+
+            <button
+              @click="resetMode = true"
+              class="w-full text-center text-sm text-zinc-400 transition hover:text-amber-500"
+            >
+              Forgot Password?
+            </button>
+          </div>
+        </div>
+
+        <!-- RESET PASSWORD -->
+        <div v-else key="reset">
+          <div class="mb-10">
+            <p class="text-xs uppercase tracking-[0.4em] text-amber-500">
+              Password Recovery
+            </p>
+
+            <h1 class="mt-4 text-4xl font-serif text-white">Reset Password</h1>
+
+            <p class="mt-3 text-zinc-400">
+              Enter your email and we'll send you a reset link.
+            </p>
+          </div>
+
+          <div class="space-y-5">
+            <input
+              v-model="resetEmail"
+              type="email"
+              placeholder="Email Address"
+              class="w-full rounded-2xl border border-zinc-800 bg-black px-5 py-4 text-white outline-none transition focus:border-amber-500"
+            />
+
+            <button
+              @click="forgotPassword"
+              class="w-full rounded-2xl bg-amber-500 px-5 py-4 font-medium text-black transition hover:bg-amber-400"
+            >
+              Send Reset Link
+            </button>
+
+            <button
+              @click="resetMode = false"
+              class="w-full text-center text-sm text-zinc-400 transition hover:text-amber-500"
+            >
+              ← Back to Login
+            </button>
+
+            <div
+              v-if="resetMessage"
+              class="rounded-2xl border border-zinc-800 bg-black p-4 text-sm text-zinc-400"
+            >
+              {{ resetMessage }}
+            </div>
+          </div>
+        </div>
+      </Transition>
     </div>
   </div>
 </template>

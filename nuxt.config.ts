@@ -16,7 +16,14 @@ export default defineNuxtConfig({
     "@nuxt/image",
     "@nuxtjs/supabase",
     "@nuxtjs/tailwindcss",
+    "@nuxtjs/color-mode",
   ],
+  colorMode: {
+    preference: "dark",
+    fallback: "dark",
+    classSuffix: "",
+    storageKey: "wedding-theme",
+  },
   supabase: {
     redirect: false,
   },
