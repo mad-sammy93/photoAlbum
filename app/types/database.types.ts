@@ -273,6 +273,8 @@ export interface PhotoWithUrls extends Photo {
   thumbnail_url: string;
   original_url: string;
   orientation?: "portrait" | "landscape" | "square";
+
+  featured?: boolean;
 }
 
 export interface AlbumWithPhotos extends Album {

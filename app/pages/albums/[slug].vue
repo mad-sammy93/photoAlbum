@@ -1,23 +1,58 @@
 <script setup lang="ts">
 import type { Album, PhotoWithUrls } from "~/types/database.types";
+
 const route = useRoute();
-
 const slug = route.params.slug as string;
-
 const photos = ref<PhotoWithUrls[]>([]);
-
 const album = ref<Album | null>(null);
-
 const page = ref(0);
-
 const loading = ref(false);
-
 const hasMore = ref(true);
+const skeletonCount = 8;
+const showViewer = ref(false);
+const selectedIndex = ref(0);
 
 const sentinel = ref<HTMLElement | null>(null);
+const loadedImages = ref(new Set<string>());
 
 let observer: IntersectionObserver | null = null;
 
+function markImageLoaded(id: string) {
+  loadedImages.value.add(id);
+}
+
+// async function loadMore() {
+//   if (loading.value || !hasMore.value) {
+//     return;
+//   }
+
+//   loading.value = true;
+
+//   const result = await usePhotos(slug, page.value);
+
+//   album.value = result.album;
+
+//   if (result.photos.length === 0) {
+//     hasMore.value = false;
+//   } else {
+//     const mappedPhotos = result.photos.map((photo: any) => ({
+//       ...photo,
+
+//       orientation:
+//         photo.height > photo.width
+//           ? "portrait"
+//           : photo.width > photo.height
+//             ? "landscape"
+//             : "square",
+//     }));
+
+//     photos.value.push(...mappedPhotos);
+
+//     page.value++;
+//   }
+
+//   loading.value = false;
+// }
 async function loadMore() {
   if (loading.value || !hasMore.value) {
     return;
@@ -25,14 +60,22 @@ async function loadMore() {
 
   loading.value = true;
 
-  const result = await usePhotos(slug, page.value);
+  try {
+    const result = await usePhotos(slug, page.value);
 
-  album.value = result.album;
+    album.value = result.album;
 
-  if (result.photos.length === 0) {
-    hasMore.value = false;
-  } else {
-    const mappedPhotos = result.photos.map((photo: any) => ({
+    if (result.photos.length === 0) {
+      hasMore.value = false;
+
+      return;
+    }
+
+    /*
+     * Map orientation
+     */
+
+    const mappedPhotos: PhotoWithUrls[] = result.photos.map((photo) => ({
       ...photo,
 
       orientation:
@@ -41,14 +84,48 @@ async function loadMore() {
           : photo.width > photo.height
             ? "landscape"
             : "square",
+
+      featured: false,
     }));
+
+    /*
+     * Editorial rhythm
+     *
+     * Every ~8 photos,
+     * promote the first portrait
+     * to featured.
+     */
+
+    const groupSize = 8;
+
+    for (
+      let groupStart = 0;
+      groupStart < mappedPhotos.length;
+      groupStart += groupSize
+    ) {
+      const group = mappedPhotos.slice(groupStart, groupStart + groupSize);
+
+      const portrait = group.find((photo) => photo.orientation === "portrait");
+
+      if (portrait) {
+        portrait.featured = true;
+      }
+    }
+
+    /*
+     * Preserve chronological order
+     */
 
     photos.value.push(...mappedPhotos);
 
     page.value++;
-  }
+  } catch (error) {
+    console.error(error);
 
-  loading.value = false;
+    hasMore.value = false;
+  } finally {
+    loading.value = false;
+  }
 }
 
 await loadMore();
@@ -56,11 +133,6 @@ await loadMore();
 /*
  * Lightbox
  */
-
-const showViewer = ref(false);
-
-const selectedIndex = ref(0);
-
 const viewerImages = computed(() =>
   photos.value.map((photo) => photo.original_url),
 );
@@ -79,28 +151,14 @@ function closeViewer() {
  * Editorial layout
  */
 
-function photoContainerClass(photo: any, index: number) {
-  /*
-   * Occasionally highlight an image.
-   */
-
-  if (photo.orientation === "landscape" && index % 8 === 0) {
-    return "lg:scale-[1.02]";
+function photoContainerClass(photo: PhotoWithUrls) {
+  if (photo.featured) {
+    return "scale-[1.02]";
   }
 
   return "";
 }
 
-// const mappedPhotos = result.photos.map((photo) => ({
-//   ...photo,
-
-//   orientation:
-//     photo.height > photo.width
-//       ? "portrait"
-//       : photo.width > photo.height
-//         ? "landscape"
-//         : "square",
-// }));
 /*
  * Infinite scrolling
  */
@@ -125,6 +183,47 @@ onMounted(() => {
 onUnmounted(() => {
   observer?.disconnect();
 });
+
+const columnCount = computed(() => {
+  if (screenWidth.value >= 1280) {
+    return 4;
+  }
+
+  if (screenWidth.value >= 768) {
+    return 2;
+  }
+
+  return 1;
+});
+
+const photoColumns = computed(() => {
+  const columns: PhotoWithUrls[][] = Array.from(
+    { length: columnCount.value },
+    () => [],
+  );
+
+  photos.value.forEach((photo, index) => {
+    columns[index % columnCount.value].push(photo);
+  });
+
+  return columns;
+});
+
+const screenWidth = ref(0);
+
+const handleResize = () => {
+  screenWidth.value = window.innerWidth;
+};
+
+onMounted(() => {
+  handleResize();
+
+  window.addEventListener("resize", handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", handleResize);
+});
 </script>
 
 <template>
@@ -132,11 +231,18 @@ onUnmounted(() => {
     class="min-h-screen bg-white text-zinc-900 dark:bg-black dark:text-white transition-colors duration-300"
   >
     <ThemeToggle />
+    <!-- Back -->
+    <section class="mx-auto max-w-7xl px-6 pt-8">
+      <NuxtLink
+        to="/"
+        class="fixed left-6 top-6 z-50 inline-flex items-center gap-2 rounded-full border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-black/50 px-5 py-3 text-sm backdrop-blur-xl transition-all duration-300 hover:-translate-x-1"
+      >
+        ← Back
+      </NuxtLink>
+    </section>
     <!-- Header -->
-    <section class="mx-auto max-w-7xl px-6 py-24 text-center">
-      <p class="text-sm uppercase tracking-[0.5em] text-zinc-500">
-        Wedding Memories
-      </p>
+    <section class="mx-auto max-w-screen-xl px-6 pb-20 py-24 text-center">
+      <p class="text-sm uppercase tracking-[0.5em] text-zinc-500">Memories</p>
 
       <h1 class="mt-6 text-5xl font-serif md:text-7xl">
         {{ album?.title }}
@@ -149,20 +255,66 @@ onUnmounted(() => {
 
     <!-- Gallery -->
     <section class="mx-auto max-w-screen-xl px-6 pb-20">
-      <div class="columns-1 gap-5 md:columns-2 xl:columns-4">
+      <div
+        class="grid gap-5"
+        :class="{
+          'grid-cols-1': columnCount === 1,
+          'grid-cols-2': columnCount === 2,
+          'grid-cols-4': columnCount === 4,
+        }"
+      >
         <div
-          v-for="(photo, index) in photos"
-          :key="photo.id"
-          :class="photoContainerClass(photo, index)"
-          class="mb-5 break-inside-avoid cursor-pointer overflow-hidden rounded-3xl"
-          @click="openViewer(index)"
+          v-for="(column, columnIndex) in photoColumns"
+          :key="columnIndex"
+          class="space-y-5"
         >
-          <img
-            :src="photo.thumbnail_url"
-            :alt="photo.title"
-            loading="lazy"
-            class="w-full transition duration-700 hover:scale-[1.02]"
-          />
+          <div
+            v-for="photo in column"
+            :key="photo.id"
+            class="cursor-pointer overflow-hidden rounded-3xl transition-transform duration-500"
+            :class="[photo.featured ? 'lg:scale-[1.03]' : '']"
+            @click="openViewer(photos.findIndex((p) => p.id === photo.id))"
+          >
+            <div class="relative">
+              <!-- Skeleton -->
+              <div
+                v-if="!loadedImages.has(photo.id)"
+                class="absolute inset-0 overflow-hidden rounded-3xl bg-zinc-200 dark:bg-zinc-800"
+                :style="{
+                  aspectRatio:
+                    photo.width && photo.height
+                      ? `${photo.width} / ${photo.height}`
+                      : '4 / 5',
+                }"
+              >
+                <div
+                  class="absolute inset-0 animate-[shimmer_2s_linear_infinite]"
+                />
+              </div>
+
+              <!-- Image -->
+              <img
+                :src="photo.thumbnail_url"
+                :alt="photo.title ?? ''"
+                loading="lazy"
+                @load="markImageLoaded(photo.id)"
+                @error="markImageLoaded(photo.id)"
+                class="h-auto w-full rounded-3xl object-cover transition-all duration-700 ease-out hover:scale-[1.02]"
+                :class="
+                  loadedImages.has(photo.id) ? 'opacity-100' : 'opacity-0'
+                "
+                :ref="
+                  (el) => {
+                    const img = el as HTMLImageElement | null;
+
+                    if (img && img.complete && !loadedImages.has(photo.id)) {
+                      markImageLoaded(photo.id);
+                    }
+                  }
+                "
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -170,8 +322,12 @@ onUnmounted(() => {
       <div ref="sentinel" class="h-24" />
 
       <!-- Loading -->
-      <div v-if="loading" class="py-10 text-center text-zinc-500">
-        Loading memories...
+      <!-- Infinite Loading Skeletons -->
+      <div
+        v-if="loading"
+        class="columns-1 gap-5 md:columns-2 xl:columns-4 text-center"
+      >
+        Loading Images ...
       </div>
 
       <!-- End -->

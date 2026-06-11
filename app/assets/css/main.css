@@ -22,3 +22,29 @@
 .dark ::-webkit-scrollbar-thumb {
   background: #52525b;
 }
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up-enter {
+  animation: fade-up 600ms ease-out forwards;
+}
