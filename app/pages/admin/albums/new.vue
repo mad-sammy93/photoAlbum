@@ -60,7 +60,7 @@ async function createAlbum() {
           v-model="title"
           type="text"
           class="w-full rounded-xl bg-zinc-950 p-4"
-          placeholder="Haldi"
+          placeholder="Trip to Paris"
         />
       </div>
 
@@ -71,7 +71,7 @@ async function createAlbum() {
           v-model="description"
           rows="4"
           class="w-full rounded-xl bg-zinc-950 p-4"
-          placeholder="A joyful celebration..."
+          placeholder="About this album..."
         />
       </div>
 
