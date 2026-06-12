@@ -48,11 +48,9 @@ onMounted(() => {
   <div class="space-y-10">
     <!-- Header -->
     <div>
-      <h1 class="text-4xl font-serif text-white">Wedding Dashboard</h1>
+      <h1 class="text-4xl font-serif text-white">Photo Dashboard</h1>
 
-      <p class="mt-3 text-zinc-400">
-        Manage your wedding albums and photographs.
-      </p>
+      <p class="mt-3 text-zinc-400">Manage your albums and photographs.</p>
     </div>
 
     <!-- Stats -->

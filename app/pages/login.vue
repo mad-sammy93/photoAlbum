@@ -61,7 +61,7 @@ async function login() {
         <div v-if="!resetMode" key="login">
           <div class="mb-10">
             <p class="text-xs uppercase tracking-[0.4em] text-amber-500">
-              Wedding CMS
+              Memories CMS
             </p>
 
             <h1 class="mt-4 text-4xl font-serif text-white">Welcome Back</h1>

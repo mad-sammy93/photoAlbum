@@ -49,7 +49,7 @@ async function createAlbum() {
     <div class="mb-10">
       <h1 class="text-4xl font-serif">Create Album</h1>
 
-      <p class="mt-2 text-zinc-400">Add a new wedding collection.</p>
+      <p class="mt-2 text-zinc-400">Add a new collection.</p>
     </div>
 
     <div class="space-y-6 rounded-3xl border border-zinc-800 bg-zinc-900 p-8">

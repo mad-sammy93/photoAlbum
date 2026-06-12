@@ -153,7 +153,7 @@ async function uploadPhotos() {
     </div>
 
     <div>
-      <label class="mb-2 block text-sm text-zinc-400"> Wedding Photos </label>
+      <label class="mb-2 block text-sm text-zinc-400"> Photos </label>
 
       <input
         type="file"

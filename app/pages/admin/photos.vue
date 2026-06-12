@@ -140,7 +140,7 @@ watch(selectedAlbum, fetchPhotos);
     <div>
       <h1 class="text-5xl font-serif text-white">Photo Studio</h1>
 
-      <p class="mt-3 text-zinc-400">Upload and manage wedding memories.</p>
+      <p class="mt-3 text-zinc-400">Upload and manage memories.</p>
     </div>
 
     <div

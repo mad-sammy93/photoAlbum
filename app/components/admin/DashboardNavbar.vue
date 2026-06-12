@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const supabase = useSupabaseClient();
-
 const user = useSupabaseUser();
 
 async function logout() {
@@ -12,35 +11,37 @@ async function logout() {
 
 <template>
   <header
-    class="sticky top-0 z-20 flex items-center justify-between border-b border-zinc-800 bg-black/80 px-8 py-5 backdrop-blur-xl"
+    class="sticky top-0 z-20 border-b border-zinc-800 bg-black/80 backdrop-blur-xl"
   >
-    <div>
-      <h1 class="text-xl font-serif">Wedding Dashboard</h1>
+    <div
+      class="flex flex-col gap-4 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between md:px-8 md:py-5"
+    >
+      <!-- Left section -->
+      <div>
+        <h1 class="text-lg font-serif sm:text-xl">Memories Dashboard</h1>
 
-      <p class="text-sm text-zinc-500">Manage your memories</p>
-    </div>
-
-    <div class="flex items-center gap-6">
-      <button
-        class="rounded-xl border border-zinc-700 px-4 py-2 text-zinc-400 transition hover:bg-zinc-900"
-      >
-        Notifications
-      </button>
-
-      <div class="text-right">
-        <p class="font-medium">
-          {{ user?.email }}
-        </p>
-
-        <p class="text-xs text-zinc-500">Administrator</p>
+        <p class="text-sm text-zinc-500">Manage your memories</p>
       </div>
 
-      <button
-        @click="logout"
-        class="rounded-xl bg-amber-500 px-5 py-2 font-medium text-black transition hover:bg-amber-400"
+      <!-- Right section -->
+      <div
+        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end sm:gap-6"
       >
-        Logout
-      </button>
+        <div class="min-w-0 text-left sm:text-right">
+          <p class="truncate font-medium">
+            {{ user?.email }}
+          </p>
+
+          <p class="text-xs text-zinc-500">Administrator</p>
+        </div>
+
+        <button
+          @click="logout"
+          class="w-full rounded-xl bg-amber-500 px-5 py-2 font-medium text-black transition hover:bg-amber-400 sm:w-auto"
+        >
+          Logout
+        </button>
+      </div>
     </div>
   </header>
 </template>
